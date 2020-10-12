@@ -42,22 +42,22 @@ class Nrpe(CharmBase):
             self._on_config_changed
         )
         self.framework.observe(
-            self.on.self._general_info.available,
+            self._general_info.on.available,
             self._on_check_status_and_configure_event
         )
 
         self.framework.observe(
-            self.on.self._monitors.available,
+            self._monitors.on.available,
             self._on_check_status_and_configure_event
         )
 
         self.framework.observe(
-            self.on.self._local_monitors.available,
+            self._local_monitors.on.available,
             self._on_check_status_and_configure_event
         )
 
         self.framework.observe(
-            self.on.self._nrpe_external_master.available,
+            self._nrpe_external_master.on.available,
             self._on_check_status_and_configure_event
         )
 

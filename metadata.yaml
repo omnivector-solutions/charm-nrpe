@@ -1,5 +1,4 @@
 name: nrpe
-format: 2
 summary: Nagios Remote Plugin Executor Server
 maintainer: LMA Charmers <llama-charmers@lists.ubuntu.com>
 subordinate: true
