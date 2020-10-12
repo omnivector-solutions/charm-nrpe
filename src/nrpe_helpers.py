@@ -216,6 +216,8 @@ class PrincipalRelation(helpers.RelationContext):
         """Return true if the relation is connected."""
         if self.name not in self:
             return False
+        elif not len(self[self.name]) > 0:
+            return False
         return "__unit__" in self[self.name][0]
 
     def nagios_hostname(self):
@@ -588,3 +590,4 @@ class SubordinateCheckDefinitions(dict):
 
             d_ifaces[iface_dev] = "-i {}{}".format(iface_dev, extra_params)
         return d_ifaces
+

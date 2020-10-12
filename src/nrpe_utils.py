@@ -32,9 +32,12 @@ def restart_rsync(service_name):
     host.service_restart("rsync")
 
 
-def restart_nrpe(service_name):
+def restart_nrpe():
     """Restart nrpe."""
-    host.service_restart("nagios-nrpe-server")
+    if OS_RELEASE_CTXT['ID'] == 'ubuntu':
+        host.service_restart("nagios-nrpe-server")
+    else:
+        host.service_restart("nrpe")
 
 
 def determine_packages():
@@ -88,7 +91,6 @@ def remove_host_export_fragments(service_name):
 def install_charm_files(service_name):
     """Install files shipped with charm."""
     nag_dirs = [
-        "/usr/lib/nagios/plugins/",
         "/etc/nagios/nrpe.d/",
         "/usr/local/lib/nagios/plugins",
         "/var/lib/nagios/export/",
@@ -98,16 +100,21 @@ def install_charm_files(service_name):
             Path(nag_dir).mkdir(mode=0o755, parents=True)
     charm_file_dir = os.path.join(hookenv.charm_dir(), "files")
     charm_plugin_dir = os.path.join(charm_file_dir, "plugins")
-    pkg_plugin_dir = "/usr/lib/nagios/plugins/"
+
+    if OS_RELEASE_CTXT['ID'] == 'ubuntu':
+        pkg_plugin_dir = "/usr/lib/nagios/plugins/"
+    else:
+        pkg_plugin_dir = "/usr/lib64/nagios/plugins/"
+
     local_plugin_dir = "/usr/local/lib/nagios/plugins/"
 
     shutil.copy2(
         os.path.join(charm_file_dir, "nagios_plugin.py"),
-        pkg_plugin_dir + "/nagios_plugin.py",
+        pkg_plugin_dir + "nagios_plugin.py",
     )
     shutil.copy2(
         os.path.join(charm_file_dir, "nagios_plugin3.py"),
-        pkg_plugin_dir + "/nagios_plugin3.py",
+        pkg_plugin_dir + "nagios_plugin3.py",
     )
     shutil.copy2(os.path.join(charm_file_dir, "default_rsync"), "/etc/default/rsync")
     shutil.copy2(os.path.join(charm_file_dir, "rsyncd.conf"), "/etc/rsyncd.conf")
@@ -129,7 +136,7 @@ def render_nrpe_check_config(checkctxt):
         )
 
 
-def render_nrped_files(service_name):
+def render_nrped_files():
     """Render each of the predefined checks."""
     for checkctxt in nrpe_helpers.SubordinateCheckDefinitions()["checks"]:
         # Clean up existing files
@@ -180,7 +187,7 @@ def process_local_monitors():
                 )
 
 
-def update_nrpe_external_master_relation(service_name):
+def update_nrpe_external_master_relation():
     """Update nrpe external master relation.
 
     Send updated nagios_hostname to charms attached
@@ -193,7 +200,7 @@ def update_nrpe_external_master_relation(service_name):
         )
 
 
-def update_monitor_relation(service_name):
+def update_monitor_relation():
     """Send updated monitor yaml to charms attached to monitor relation."""
     monitor_relation = nrpe_helpers.MonitorsRelation()
     for rid in hookenv.relation_ids("monitors"):
